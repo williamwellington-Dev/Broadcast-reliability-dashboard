@@ -121,6 +121,6 @@ Power BI Desktop and Service · Power Query (M) · DAX · Power Automate · Shar
 
 ## Credits
 
-The HTML parser in `01_Davicom.pq` was written with help from Claude (AI), as noted in the code header. Solution design, downstream transformations, data model, DAX, dashboard design, and the SharePoint and Power Automate automation are my own work.
+THIS IS MY FULL DISCLOSURE TO HIRING MANAGERS: This project shows my POWER BI, SHAREPOINT and POWER AUTOMATE skills and how I solve real problems in the workplace.The HTML parser in `01_Davicom.pq` was written with help from Claude (AI), AS NOTED in the code header. ONE MORE TIME The Solution design, downstream transformations, data model, DAX, dashboard design, and the SharePoint and Power Automate automation are my own work NOT THE PARSER.
 
 **Author:** William Wellington
