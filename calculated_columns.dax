@@ -1,0 +1,55 @@
+// =============================================================
+// DAX Calculated Columns — Davicom Reliability Dashboard
+// =============================================================
+
+// ----- SilenceEvents -----
+SilenceEvents[Event Label] =
+SilenceEvents[station]
+    & UNICHAR(10)
+    & FORMAT(SilenceEvents[start_time], "yyyy-MM-dd") & FORMAT(SilenceEvents[start_time], " HH:mm")
+
+// ----- AlarmLog -----
+AlarmLog[station] =
+VAR FirstWord =
+    LEFT(
+        AlarmLog[description],
+        SEARCH(" ", AlarmLog[description] & " ") - 1
+    )
+RETURN
+    IF(
+        FirstWord IN {"CXRA", "CXRB", "CXRC", "CXRD"},
+        FirstWord,
+        BLANK()
+    )
+
+// ----- Reports -----
+Reports[Report Date] =
+DATE(
+    YEAR(Reports[report_time]),
+    MONTH(Reports[report_time]),
+    DAY(Reports[report_time])
+)
+
+// ----- Telemetry -----
+Telemetry[Report Date] =
+DATE(
+    YEAR(Telemetry[report_time]),
+    MONTH(Telemetry[report_time]),
+    DAY(Telemetry[report_time])
+)
+
+// ----- SilenceEvents -----
+SilenceEvents[Event Date] =
+DATE(
+    YEAR(SilenceEvents[start_time]),
+    MONTH(SilenceEvents[start_time]),
+    DAY(SilenceEvents[start_time])
+)
+
+// ----- AlarmLog -----
+AlarmLog[Alarm Date] =
+DATE(
+    YEAR(AlarmLog[timestamp]),
+    MONTH(AlarmLog[timestamp]),
+    DAY(AlarmLog[timestamp])
+)

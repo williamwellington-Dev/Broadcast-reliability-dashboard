@@ -1,0 +1,146 @@
+// =============================================================
+// DAX Measures — Davicom Reliability Dashboard
+// =============================================================
+
+// ----- Reports -----
+Stations Monitored =
+DISTINCTCOUNT(StationStatus[station])
+
+// ----- Reports -----
+Sample Reports =
+COUNTROWS(Reports)
+
+// ----- Reports -----
+Silence Events =
+COUNTROWS(SilenceEvents)
+
+// ----- Reports -----
+Average Silence Duration =
+AVERAGE(SilenceEvents[duration_seconds])
+
+// ----- Reports -----
+Power Source =
+VAR HydroState =
+    CALCULATE(
+        SELECTEDVALUE(InfrastructureHealth[digital_state]),
+        InfrastructureHealth[label] = "On Hydro"
+    )
+RETURN
+    IF(
+        HydroState = "L",
+        "Hydro",
+        "Check Power"
+    )
+
+// ----- Reports -----
+Generator Status =
+VAR AutoState =
+    CALCULATE(
+        SELECTEDVALUE(InfrastructureHealth[digital_state]),
+        InfrastructureHealth[label] = "Generator Auto"
+    )
+
+VAR BatteryState =
+    CALCULATE(
+        SELECTEDVALUE(InfrastructureHealth[digital_state]),
+        InfrastructureHealth[label] = "Generator Battery OK"
+    )
+
+RETURN
+    IF(
+        AutoState = "H" && BatteryState = "H",
+        "Auto / Battery OK",
+        "Check Generator"
+    )
+
+// ----- Reports -----
+Last Report =
+MAX(Reports[report_time])
+
+// ----- SilenceEvents -----
+Silence Duration =
+SUM(SilenceEvents[duration_seconds])
+
+// ----- Telemetry -----
+Latest Telemetry Value =
+VAR LatestTime =
+    CALCULATE(
+        MAX(Telemetry[report_time]),
+        REMOVEFILTERS(Telemetry[report_time])
+    )
+RETURN
+    CALCULATE(
+        MAX(Telemetry[numeric_value]),
+        Telemetry[report_time] = LatestTime
+    )
+
+// ----- Telemetry -----
+Latest Telemetry Display =
+VAR LatestTime =
+    CALCULATE(
+        MAX(Telemetry[report_time]),
+        REMOVEFILTERS(Telemetry[report_time])
+    )
+VAR LatestValue =
+    CALCULATE(
+        MAX(Telemetry[numeric_value]),
+        Telemetry[report_time] = LatestTime
+    )
+VAR LatestUnit =
+    CALCULATE(
+        SELECTEDVALUE(Telemetry[unit]),
+        Telemetry[report_time] = LatestTime
+    )
+RETURN
+    IF(
+        ISBLANK(LatestValue),
+        BLANK(),
+        FORMAT(LatestValue, "0.####")
+            & IF(
+                NOT ISBLANK(LatestUnit),
+                " " & LatestUnit,
+                ""
+            )
+    )
+
+// ----- Alarms -----
+Average Silence Duration Display =
+FORMAT([Average Silence Duration], "0.0") & " sec"
+
+// ----- InfrastructureHealth -----
+Infrastructure Status Color =
+SWITCH(
+    SELECTEDVALUE(InfrastructureHealth[health]),
+    "Healthy", "#5DBB63",
+    "Attention", "#C58A24",
+    "#667085"
+)
+
+// ----- StationStatus -----
+Station Status Color =
+VAR CurrentStatus =
+    SELECTEDVALUE(StationStatus[status])
+RETURN
+    SWITCH(
+        TRUE(),
+        ISBLANK(CurrentStatus), "#667085",
+        CurrentStatus = "NORMAL", "#3F8F66",
+        "#C58A24"
+    )
+
+// ----- AlarmLog -----
+Alarm Severity Color =
+SWITCH(
+    SELECTEDVALUE(AlarmLog[severity]),
+    "MINOR2", "#C58A24",
+    "NORMAL", "#3F8F66",
+    "#667085"
+)
+
+// ----- InfrastructureHealth -----
+Infrastructure Health Dot =
+IF(
+    NOT ISBLANK(SELECTEDVALUE(InfrastructureHealth[health])),
+    UNICHAR(9679),
+    BLANK()
+)
